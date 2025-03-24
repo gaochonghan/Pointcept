@@ -162,13 +162,23 @@ class Trainer(TrainerBase):
                     self.comm_info["iter"],
                     self.comm_info["input_dict"],
                 ) in self.data_iterator:
-                    # => before_step
-                    self.before_step()
-                    # => run_step
-                    self.run_step()
-                    # => after_step
-                    self.after_step()
-                # => after epoch
+                    try:
+                        # => before_step
+                        self.before_step()
+                        # => run_step
+                        self.run_step()
+                        # => after_step
+                        self.after_step()
+                    except Exception as e:
+                        self.logger.error(f"Error in epoch {self.epoch}: {e}")
+                        continue
+                    # # => before_step
+                    # self.before_step()
+                    # # => run_step
+                    # self.run_step()
+                    # # => after_step
+                    # self.after_step()
+                    # # => after epoch
                 self.after_epoch()
             # => after train
             self.after_train()
@@ -179,6 +189,8 @@ class Trainer(TrainerBase):
             if isinstance(input_dict[key], torch.Tensor):
                 input_dict[key] = input_dict[key].cuda(non_blocking=True)
         with torch.cuda.amp.autocast(enabled=self.cfg.enable_amp):
+            # print(input_dict['grid_coord'].max(dim=0).values, input_dict['grid_coord'].min(dim=0).values)
+            # print(input_dict['coord'].max(dim=0).values, input_dict['coord'].min(dim=0).values)
             output_dict = self.model(input_dict)
             loss = output_dict["loss"]
         self.optimizer.zero_grad()

@@ -10,7 +10,36 @@ import torch.nn as nn
 import torch.nn.functional as F
 from .builder import LOSSES
 
+@LOSSES.register_module()
+class MSELoss(nn.Module):
+    def __init__(
+        self,
+        reduction="mean",
+        loss_weight=1.0,
+        ignore_index=-1,
+    ):
+        """Mean Squared Error Loss.
+        A simple wrapper around PyTorch's MSELoss.
+        """
+        super(MSELoss, self).__init__()
+        self.loss_weight = loss_weight
+        self.ignore_index = ignore_index
+        self.loss = nn.MSELoss(reduction=reduction)
 
+    def forward(self, pred, target):
+        # Handle ignore_index if needed
+        if self.ignore_index >= 0:
+            valid_mask = target != self.ignore_index
+            if not valid_mask.all():
+                pred = pred[valid_mask]
+                target = target[valid_mask]
+                
+                if len(target) == 0:
+                    return pred.sum() * 0.0
+                    
+        return self.loss(pred, target) * self.loss_weight
+    
+    
 @LOSSES.register_module()
 class CrossEntropyLoss(nn.Module):
     def __init__(

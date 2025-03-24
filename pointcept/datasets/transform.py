@@ -47,6 +47,12 @@ class Collect(object):
             name = name.replace("_keys", "")
             assert isinstance(keys, Sequence)
             data[name] = torch.cat([data_dict[key].float() for key in keys], dim=1)
+
+        #########################################################
+        # for key in data.keys():
+        #     print(key, data[key].shape, "****************")
+        data['segment'] = torch.cat([data['feat'], data['coord']], dim=-1)
+        #########################################################
         return data
 
 

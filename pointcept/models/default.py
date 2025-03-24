@@ -73,6 +73,7 @@ class DefaultSegmentorV2(nn.Module):
             return dict(seg_logits=seg_logits)
 
 
+
 @MODELS.register_module()
 class DefaultClassifier(nn.Module):
     def __init__(
