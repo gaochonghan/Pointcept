@@ -6,11 +6,7 @@ Please cite our work if the code is helpful to you.
 """
 
 import os
-
-try:
-    import SharedArray
-except ImportError:
-    SharedArray = None
+import SharedArray
 
 try:
     from multiprocessing.shared_memory import ShareableList

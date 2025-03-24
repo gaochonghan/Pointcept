@@ -145,7 +145,7 @@ data = dict(
                     ),
                     # dict(type="SphereCrop", point_max=1000000, mode="random"),
                     # dict(type="CenterShift", apply_z=False),
-                    dict(type="Update", keys_dict={"condition": "nuScenes"}),
+                    dict(type="Add", keys_dict={"condition": "nuScenes"}),
                     dict(type="ToTensor"),
                     dict(
                         type="Collect",
@@ -193,7 +193,7 @@ data = dict(
                     ),
                     # dict(type="SphereCrop", point_max=1000000, mode="random"),
                     # dict(type="CenterShift", apply_z=False),
-                    dict(type="Update", keys_dict={"condition": "SemanticKITTI"}),
+                    dict(type="Add", keys_dict={"condition": "SemanticKITTI"}),
                     dict(type="ToTensor"),
                     dict(
                         type="Collect",
@@ -241,7 +241,7 @@ data = dict(
                     ),
                     # dict(type="SphereCrop", point_max=1000000, mode="random"),
                     # dict(type="CenterShift", apply_z=False),
-                    dict(type="Update", keys_dict={"condition": "Waymo"}),
+                    dict(type="Add", keys_dict={"condition": "Waymo"}),
                     dict(type="ToTensor"),
                     dict(
                         type="Collect",
@@ -266,9 +266,10 @@ data = dict(
                 grid_size=0.05,
                 hash_type="fnv",
                 mode="train",
+                keys=("coord", "strength", "segment"),
                 return_grid_coord=True,
             ),
-            dict(type="Update", keys_dict={"condition": "SemanticKITTI"}),
+            dict(type="Add", keys_dict={"condition": "SemanticKITTI"}),
             dict(type="ToTensor"),
             dict(
                 type="Collect",
@@ -294,10 +295,11 @@ data = dict(
                 hash_type="fnv",
                 mode="test",
                 return_grid_coord=True,
+                keys=("coord", "strength"),
             ),
             crop=None,
             post_transform=[
-                dict(type="Update", keys_dict={"condition": "SemanticKITTI"}),
+                dict(type="Add", keys_dict={"condition": "SemanticKITTI"}),
                 dict(type="ToTensor"),
                 dict(
                     type="Collect",

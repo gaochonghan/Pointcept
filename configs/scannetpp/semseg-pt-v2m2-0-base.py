@@ -38,7 +38,10 @@ model = dict(
         enable_checkpoint=False,
         unpool_backend="map",  # map / interp
     ),
-    criteria=[dict(type="CrossEntropyLoss", loss_weight=1.0, ignore_index=-1)],
+    criteria=[
+        dict(type="CrossEntropyLoss", loss_weight=1.0, ignore_index=-1),
+        dict(type="LovaszLoss", mode="multiclass", loss_weight=1.0, ignore_index=-1),
+    ],
 )
 
 # scheduler settings
@@ -151,6 +154,7 @@ data = dict(
                 grid_size=0.02,
                 hash_type="fnv",
                 mode="test",
+                keys=("coord", "color", "normal"),
                 return_grid_coord=True,
             ),
             crop=None,

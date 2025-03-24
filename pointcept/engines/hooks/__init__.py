@@ -1,4 +1,4 @@
-from .default import *
+from .default import HookBase
 from .misc import *
 from .evaluator import *
 

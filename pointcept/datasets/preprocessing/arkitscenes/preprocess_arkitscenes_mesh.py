@@ -11,7 +11,8 @@ import pandas as pd
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
-from pathlib import Path
+
+import torch
 
 
 def read_plymesh(filepath):
@@ -54,11 +55,9 @@ def parse_scene(scene_path, output_dir):
     vertices, faces = read_plymesh(scene_path)
     coords = vertices[:, :3]
     colors = vertices[:, 3:6]
-    normals = vertex_normal(coords, faces)
-    data_dict = dict(coord=coords, color=colors, normal=normals)
-    os.makedirs(output_dir / split / scene_id, exist_ok=True)
-    for key in data_dict.keys():
-        np.save(output_dir / split / scene_id / f"{key}.npy", data_dict[key])
+    data_dict = dict(coord=coords, color=colors, scene_id=scene_id)
+    data_dict["normal"] = vertex_normal(coords, faces)
+    torch.save(data_dict, os.path.join(output_dir, split, f"{scene_id}.pth"))
 
 
 if __name__ == "__main__":
@@ -66,18 +65,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset_root",
         required=True,
-        help="Path to the ArkitScenes dataset containing 3dod folder",
+        help="Path to the ScanNet dataset containing scene folders",
     )
     parser.add_argument(
         "--output_root",
         required=True,
         help="Output path where train/val folders will be located",
-    )
-    parser.add_argument(
-        "--num_workers",
-        default=mp.cpu_count(),
-        type=int,
-        help="Num workers for preprocessing.",
     )
     opt = parser.parse_args()
     # Create output directories
@@ -88,6 +81,7 @@ if __name__ == "__main__":
     # Load scene paths
     scene_paths = sorted(glob.glob(opt.dataset_root + "/3dod/*/*/*_mesh.ply"))
     # Preprocess data.
-    pool = ProcessPoolExecutor(max_workers=opt.num_workers)
+    pool = ProcessPoolExecutor(max_workers=mp.cpu_count())
+    # pool = ProcessPoolExecutor(max_workers=1)
     print("Processing scenes...")
-    _ = list(pool.map(parse_scene, scene_paths, repeat(Path(opt.output_root))))
+    _ = list(pool.map(parse_scene, scene_paths, repeat(opt.output_root)))
