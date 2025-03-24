@@ -7,7 +7,7 @@ from .s3dis import S3DISDataset
 from .scannet import ScanNetDataset, ScanNet200Dataset
 from .scannetpp import ScanNetPPDataset
 from .scannet_pair import ScanNetPairDataset
-from .arkitscenes import ArkitScenesDataset
+from .hm3d import HM3DDataset
 from .structure3d import Structured3DDataset
 from .pde import PDEDataset
 
