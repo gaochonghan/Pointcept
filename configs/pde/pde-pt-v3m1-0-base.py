@@ -1,7 +1,7 @@
 _base_ = ["../_base_/default_runtime.py"]
 
 # misc custom setting
-batch_size = 12  # bs: total bs in all gpus
+batch_size = 128  # bs: total bs in all gpus
 num_worker = 24
 mix_prob = 0.8
 empty_cache = False
@@ -10,11 +10,11 @@ enable_amp = True
 # model settings
 model = dict(
     type="DefaultSegmentorV2",
-    num_classes=33,
+    num_classes=7,
     backbone_out_channels=64,
     backbone=dict(
         type="PT-v3m1",
-        in_channels=30,
+        in_channels=4,
         order=("z", "z-trans", "hilbert", "hilbert-trans"),
         stride=(2, 2, 2, 2),
         enc_depths=(2, 2, 2, 6, 2),
@@ -46,7 +46,7 @@ model = dict(
         pdnorm_conditions=("ScanNet", "S3DIS", "Structured3D"),
     ),
     criteria=[
-        dict(type="MSELoss", loss_weight=1.0, ignore_index=-1),
+        dict(type="MSELoss", loss_weight=1.0, ignore_index=-1, reduction="none"),
     ],
 )
 
@@ -68,7 +68,7 @@ dataset_type = "PDEDataset"
 data_root = "/mnt/hdd_raid5/pdebench/ckpt_0115"
 
 data = dict(
-    num_classes=33,
+    num_classes=7,
     ignore_index=-1,
     names=[
         "coord", 
@@ -90,17 +90,17 @@ data = dict(
             #     type="RandomDropout", dropout_ratio=0.2, dropout_application_ratio=0.2
             # ),
             # dict(type="RandomRotateTargetAngle", angle=(1/2, 1, 3/2), center=[0, 0, 0], axis="z", p=0.75),
-            dict(type="RandomRotate", angle=[-1, 1], axis="z", center=[0, 0, 0], p=0.5),
-            dict(type="RandomRotate", angle=[-1 / 64, 1 / 64], axis="x", p=0.5),
-            dict(type="RandomRotate", angle=[-1 / 64, 1 / 64], axis="y", p=0.5),
-            dict(type="RandomScale", scale=[0.9, 1.1]),
-            # dict(type="RandomShift", shift=[0.2, 0.2, 0.2]),
-            dict(type="RandomFlip", p=0.5),
-            dict(type="RandomJitter", sigma=0.005, clip=0.02),
-            dict(type="ElasticDistortion", distortion_params=[[0.2, 0.4], [0.8, 1.6]]),
-            dict(type="ChromaticAutoContrast", p=0.2, blend_factor=None),
-            dict(type="ChromaticTranslation", p=0.95, ratio=0.05),
-            dict(type="ChromaticJitter", p=0.95, std=0.05),
+            # dict(type="RandomRotate", angle=[-1, 1], axis="z", center=[0, 0, 0], p=0.5),
+            # dict(type="RandomRotate", angle=[-1 / 64, 1 / 64], axis="x", p=0.5),
+            # dict(type="RandomRotate", angle=[-1 / 64, 1 / 64], axis="y", p=0.5),
+            # dict(type="RandomScale", scale=[0.9, 1.1]),
+            # # dict(type="RandomShift", shift=[0.2, 0.2, 0.2]),
+            # dict(type="RandomFlip", p=0.5),
+            # dict(type="RandomJitter", sigma=0.005, clip=0.02),
+            # dict(type="ElasticDistortion", distortion_params=[[0.2, 0.4], [0.8, 1.6]]),
+            # dict(type="ChromaticAutoContrast", p=0.2, blend_factor=None),
+            # dict(type="ChromaticTranslation", p=0.95, ratio=0.05),
+            # dict(type="ChromaticJitter", p=0.95, std=0.05),
             # dict(type="HueSaturationTranslation", hue_max=0.2, saturation_max=0.2),
             # dict(type="RandomColorDrop", p=0.2, color_augment=0.0),
             dict(
@@ -111,15 +111,16 @@ data = dict(
                 return_grid_coord=True,
                 keys=("coord", "opacities", "features_dc", "scales", "rots", "m", "sigma", "w1"),
             ),
-            dict(type="SphereCrop", point_max=102400, mode="random"),
-            dict(type="CenterShift", apply_z=False),
+            # dict(type="SphereCrop", point_max=102400, mode="random"),
+            # dict(type="CenterShift", apply_z=False),
             # dict(type="NormalizeColor"),
             # dict(type="ShufflePoint"),
             dict(type="ToTensor"),
             dict(
                 type="Collect",
                 keys=("coord", 'grid_coord', 'segment'),
-                feat_keys=("opacities", "features_dc", "scales", "rots", "m", "sigma", "w1"),
+                # feat_keys=("opacities", "features_dc", "scales", "rots", "m", "sigma", "w1"),
+                feat_keys=("opacities", "scales"),
             ),
         ],
         test_mode=False,

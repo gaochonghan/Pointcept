@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 import torch_scatter
 
 from pointcept.models.losses import build_criteria
@@ -52,6 +53,7 @@ class DefaultSegmentorV2(nn.Module):
 
     def forward(self, input_dict):
         point = Point(input_dict)
+        # print(point.feat.shape)
         point = self.backbone(point)
         # Backbone added after v1.5.0 return Point instead of feat and use DefaultSegmentorV2
         # TODO: remove this part after make all backbone return Point only.
@@ -62,7 +64,11 @@ class DefaultSegmentorV2(nn.Module):
         seg_logits = self.seg_head(feat)
         # train
         if self.training:
-            loss = self.criteria(seg_logits, input_dict["segment"])
+            loss_full = self.criteria(seg_logits, input_dict["segment"]).mean(dim=0)
+            loss = loss_full.mean()
+            if torch.isnan(loss).any():
+                raise ValueError("Loss is NaN")
+            # print(loss_full)
             return dict(loss=loss)
         # eval
         elif "segment" in input_dict.keys():

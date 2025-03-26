@@ -108,6 +108,7 @@ class PDEDataset(DefaultDataset):
         time_func = np.array(time_func).flatten().reshape([-1,1])
         data_dict['grid_size'] = 1
         data_dict['segment'] = data_dict['coord']
+
         # whole_data = torch.tensor(np.concatenate([xyz, opacities, features_dc, scales, rots, m, sigma, w1], axis=-1), dtype=torch.float)
         
         return data_dict

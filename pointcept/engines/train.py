@@ -171,6 +171,7 @@ class Trainer(TrainerBase):
                         self.after_step()
                     except Exception as e:
                         self.logger.error(f"Error in epoch {self.epoch}: {e}")
+                        self.optimizer.zero_grad()
                         continue
                     # # => before_step
                     # self.before_step()
